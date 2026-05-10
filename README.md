@@ -20,13 +20,14 @@ anything in the same major line should be fine.
     # Clone or unzip the repo, then:
     cd APITest
 
-    Install the dependencies for the api test project
+    #Install the dependencies for the api test project
     npm install
    ```
 ## 3. Running the test
-  
-  npm run test
-
+    ```bash
+    npm run test
+    
+    ```
  You should see:
 
  > apitest@1.0.0 test
