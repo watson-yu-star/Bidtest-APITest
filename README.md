@@ -13,18 +13,17 @@ anything in the same major line should be fine.
 | npm      | 9.x or 10.x         | `npm --version`      |
 | Git      | any modern version  | `git --version`      |
 
-
+    
 ## 2. Getting the code
 
-```bash
-# Clone or unzip the repo, then:
-cd APITest
+    ```bash
+    # Clone or unzip the repo, then:
+    cd APITest
 
-Install the dependencies for the api test project
-  npm install
-
+    Install the dependencies for the api test project
+    npm install
+   ```
 ## 3. Running the test
- 
   
   npm run test
 
