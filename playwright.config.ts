@@ -21,7 +21,7 @@ export default defineConfig({
   /* Retry on CI only */
   retries: process.env.CI ? 2 : 0,
   /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  workers: process.env.CI ? 1 : 2,
   maxFailures: 0,
 
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
@@ -39,8 +39,9 @@ export default defineConfig({
 
   projects: [
     {
-      name: 'health check',
-      testMatch : 'tests/health.spec.ts',
+      name: 'setup',
+      testDir: './tests',
+      testMatch: /.*\.setup\.ts/,
       use: { 
           baseURL: 'http://localhost:4000',
            trace: 'on-first-retry',
@@ -49,7 +50,7 @@ export default defineConfig({
     {
       name: 'API Tests',
       testMatch : 'tests/**/*.spec.ts',
-      dependencies: ['health check'],
+      dependencies: ['setup'],
       use: { 
           baseURL: 'http://localhost:4000',
            trace: 'on-first-retry',

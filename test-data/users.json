@@ -1,0 +1,13 @@
+{  
+   "users":
+    [
+        {  "name":"bidapitestuser",
+          "email":"bidapitest0@test.com",
+          "password": "password123"
+         },
+        {  "name":"bidapitestuser",
+          "email":"bidapitest1@test.com",
+          "password": "password123"
+         }
+    ]
+}

@@ -1,33 +1,20 @@
 import { test, expect } from '@playwright/test';
 
 import product from '../test-data/product.json';
-import { describe } from 'zod/v4/core';
+import {users} from '../test-data/users.json'
 
 let token: string;
 
 test.beforeAll(async ({ request },testInfo) => {
 
     const workerIndex = testInfo.parallelIndex;
+    
     const newUser = {
-      name: 'Bid Test',
-      email: `bid.test.${Date.now()}.${workerIndex}@gmail.com`,
+      name: 'bidapitestuser',
+      email: `bidapitest${workerIndex}@test.com`,
       password: 'password123',
     };
   
-    
-     const response = await request.post('/auth/register', {
-      data: newUser,
-    });
-
-    // Assert that the request was successful (e.g., 201 Created)
-    expect(response.status()).toBe(201);
-    expect(response.ok()).toBeTruthy();
-
-    // Assert that the response contains the created user's data
-    const responseBody = await response.json();
-    expect(responseBody.user.name).toBe(newUser.name);
-    expect(responseBody.user.email).toBe(newUser.email);
-    expect(responseBody.user.id).toBeDefined();
 
     const loginResponse = await request.post('/auth/login', {
         data: {
@@ -35,9 +22,13 @@ test.beforeAll(async ({ request },testInfo) => {
             password: newUser.password
         }
     });
+    expect(loginResponse.status()).toBe(200);
     const loginResponseBody = await loginResponse.json();
     token = loginResponseBody.token;    
+
 });
+
+
 
 test.describe.serial('Cart API', () => {
     
@@ -51,6 +42,17 @@ test.describe.serial('Cart API', () => {
         category: "Meat & Poultry",
     }
     */
+    test('should clear cart', async ({ request }) => {
+          const response = await request.delete('/cart', {
+          headers: {  'Authorization': `Bearer ${token}`} 
+        });
+       expect(response.status()).toBe(200);
+       const responseBody = await response.json();
+       expect(responseBody.items.length).toBe(0);
+       expect(responseBody.subtotal).toBe(0);
+       expect(responseBody.gst).toBe(0);
+       expect(responseBody.total).toBe(0);
+    });
 
     test('should add product to cart', async ({ request }) => {
         const response = await request.post('/cart/items', {

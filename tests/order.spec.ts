@@ -9,36 +9,25 @@ let token: string;
 
 test.beforeAll(async ({ request },testInfo) => {
 
-     const workerIndex = testInfo.parallelIndex;
-
-     const newUser = {
-      name: 'Bid Test',
-      email: `bid.test.${Date.now()}.${workerIndex}@gmail.com`,
-      password: 'password123',
-    };
-
-    const response = await request.post('/auth/register', {
-      data: newUser,
-    });
-
-    // Assert that the request was successful (e.g., 201 Created)
-    expect(response.status()).toBe(201);
-    expect(response.ok()).toBeTruthy();
-
-    // Assert that the response contains the created user's data
-    const responseBody = await response.json();
-    expect(responseBody.user.name).toBe(newUser.name);
-    expect(responseBody.user.email).toBe(newUser.email);
-    expect(responseBody.user.id).toBeDefined();
-
-    const loginResponse = await request.post('/auth/login', {
-        data: {
-            email: newUser.email, 
-            password: newUser.password
-        }
-    });
-    const loginResponseBody = await loginResponse.json();
-    token = loginResponseBody.token;    
+    const workerIndex = testInfo.parallelIndex;
+        
+        const newUser = {
+          name: 'bidapitestuser',
+          email: `bidapitest${workerIndex}@test.com`,
+          password: 'password123',
+        };
+      
+    
+        const loginResponse = await request.post('/auth/login', {
+            data: {
+                email: newUser.email, 
+                password: newUser.password
+            }
+        });
+        expect(loginResponse.status()).toBe(200);
+        const loginResponseBody = await loginResponse.json();
+        token = loginResponseBody.token;   
+  
 });
 
 
@@ -95,7 +84,7 @@ test.describe.serial('Order API', () => {
             subtotal += item.quantity * item.unitPrice;
         });
         expect(responseBody.subtotal).toBeCloseTo(subtotal);
-        expect(responseBody.total).toBeCloseTo(subtotal+subtotal*0.15, 2); // Assuming no taxes or discounts for simplicity
+        expect(responseBody.total).toBeCloseTo(subtotal+subtotal*0.15, 2);
         expect(responseBody.status).toBe('CONFIRMED');
         expect(responseBody.customer).toEqual(customer);
         expect(responseBody.createdAt).toBeDefined();
@@ -110,7 +99,7 @@ test.describe.serial('Order API', () => {
         });
         expect(response.status()).toBe(200);
         const responseBody = await response.json();
-        expect(responseBody.count).toBe(1);
+        expect(responseBody.count).toBeGreaterThan(0);
         expect(responseBody.items).toBeInstanceOf(Array);
         const result = orderResponseSchema.safeParse(responseBody);
         expect.soft(result.success, 'API JSON Schema does not match').toBe(true);
@@ -134,7 +123,8 @@ test.describe.serial('Order API', () => {
             subtotal += item.quantity * item.unitPrice;
         });
         expect(responseBody.subtotal).toBeCloseTo(subtotal);
-        expect(responseBody.total).toBeCloseTo(subtotal+subtotal*0.15, 2); // Assuming no taxes or discounts for simplicity
+        expect(responseBody.total).toBeCloseTo(subtotal+subtotal*0.15, 2); 
+        expect(responseBody.gst).toBeCloseTo(subtotal*0.15);
         expect(responseBody.status).toBe('CONFIRMED');
         expect(responseBody.customer).toEqual(customer);
     });

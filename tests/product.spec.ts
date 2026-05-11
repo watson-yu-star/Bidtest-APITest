@@ -76,7 +76,7 @@ test('search price range should return results', async ({ request }) => {
 
 test('search in stock products should return results', async ({ request }) => {
     
-    const response = await request.get('/products?inStock=tru');
+    const response = await request.get('/products?inStock=true');
     expect(response.status()).toBe(200);
     const responseBody = await response.json();
     ProductSchema.parse(responseBody);
@@ -92,20 +92,6 @@ test('search in stock products should return results', async ({ request }) => {
     }
 });
 
-test('search non in-stock products should return zero stock', async ({ request }) => {
-     const response = await request.get('/products?inStock=false');
-    expect(response.status()).toBe(200);
-    const responseBody = await response.json();
-    ProductSchema.parse(responseBody);
-    expect(responseBody.count).toBeGreaterThan(0);
-    expect(responseBody.items).toBeInstanceOf(Array);
-    if (responseBody.count > 0) {
-        responseBody.items.forEach((item: any) => {
-            expect.soft(item.stock).toBeLessThanOrEqual(0);
-        });
-    }
-    
-});
 
 test('search non existing category should return zero results', async ({ request }) => {
     

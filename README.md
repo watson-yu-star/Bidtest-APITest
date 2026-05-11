@@ -33,6 +33,8 @@ You should see:
 
 > apitest@1.0.0 test
 > npx playwright test
+Please wait for a while , then it starts running
+If run too many times, maybe it fails because the product is out of stock. Then need to restart the backend service.
 
 ## 4. Checking the test report
 
