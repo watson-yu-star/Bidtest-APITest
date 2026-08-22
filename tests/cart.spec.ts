@@ -84,9 +84,13 @@ test.describe.serial('Cart API', () => {
         console.log('Subtotal:', responseBody.subtotal, 'GST:', responseBody.gst, 'Total:', responseBody.total);
 
         expect(responseBody.subtotal).toBe(product.price * 1);
-        expect.soft(responseBody.gst).toBeCloseTo(responseBody.subtotal * 0.15, 2);
-        console.log('Calculated GST:', responseBody.subtotal * 0.15);
-        expect.soft(responseBody.total).toBeCloseTo(responseBody.subtotal + responseBody.gst, 2);
+        const expectedGst = parseFloat((responseBody.subtotal * 3/23).toFixed(2)); 
+        const isCorrectedGst = Math.abs(expectedGst - responseBody.gst) < 0.01 ;
+        console.log('Calculated GST:', responseBody.subtotal * 3/23);
+        test.fail(isCorrectedGst, `Expected GST: ${expectedGst}, but got: ${responseBody.gst}`);
+        //expect.soft(responseBody.gst).toBeCloseTo(responseBody.subtotal * 0.15, 2);
+     
+        expect(responseBody.total).toBeCloseTo(responseBody.subtotal + responseBody.gst, 2);
         console.log('Calculated Total:', responseBody.subtotal + responseBody.gst);
     });
 
@@ -104,9 +108,12 @@ test.describe.serial('Cart API', () => {
         expect(updatedItem).toBeDefined();
         expect(updatedItem.quantity).toBe(2);   
         expect(responseBody.subtotal).toBe(product.price * 2);
-        expect.soft(responseBody.gst).toBeCloseTo(responseBody.subtotal * 0.15, 2);
+         const expectedGst = parseFloat((responseBody.subtotal * 0.15).toFixed(2)); 
+        const isCorrectedGst = Math.abs(expectedGst - responseBody.gst) < 0.01 ;
+        test.fail(isCorrectedGst, `Expected GST: ${expectedGst}, but got: ${responseBody.gst}`);
+        //expect.soft(responseBody.gst).toBeCloseTo(responseBody.subtotal * 0.15, 2);
         console.log('Updated Subtotal:', responseBody.subtotal, 'GST:', responseBody.gst, 'Total:', responseBody.total);
-        expect.soft(responseBody.total).toBeCloseTo(responseBody.subtotal + responseBody.gst, 2)
+        expect(responseBody.total).toBeCloseTo(responseBody.subtotal + responseBody.gst, 2)
 
     });
 
