@@ -1,10 +1,11 @@
-import { test, expect } from '@playwright/test';
-
+//import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 import product from '../test-data/product.json';
-import {users} from '../test-data/users.json'
+//import {users} from '../test-data/users.json'
 
-let token: string;
-
+//let token: string;
+// use the token from the fixture authToken instead of creating a new user and logging in for each test. This is more efficient and avoids potential issues with rate limiting or duplicate users.
+/*
 test.beforeAll(async ({ request },testInfo) => {
 
     const workerIndex = testInfo.parallelIndex;
@@ -28,7 +29,7 @@ test.beforeAll(async ({ request },testInfo) => {
 
 });
 
-
+*/
 
 test.describe.serial('Cart API', () => {
     
@@ -42,9 +43,9 @@ test.describe.serial('Cart API', () => {
         category: "Meat & Poultry",
     }
     */
-    test('should clear cart', async ({ request }) => {
+    test('should clear cart', async ({ request,authToken }) => {
           const response = await request.delete('/cart', {
-          headers: {  'Authorization': `Bearer ${token}`} 
+          headers: {  'Authorization': `Bearer ${authToken}`} 
         });
        expect(response.status()).toBe(200);
        const responseBody = await response.json();
@@ -54,9 +55,9 @@ test.describe.serial('Cart API', () => {
        expect(responseBody.total).toBe(0);
     });
 
-    test('should add product to cart', async ({ request }) => {
+    test('should add product to cart', async ({ request,authToken }) => {
         const response = await request.post('/cart/items', {
-            headers: {  'Authorization': `Bearer ${token}`},
+            headers: {  'Authorization': `Bearer ${authToken}`},
             data: {
                 productId: product.id, 
                 quantity: 1
@@ -71,9 +72,9 @@ test.describe.serial('Cart API', () => {
         expect(addedItem.unitPrice).toBe(product.price);
     });
 
-    test('should get cart items', async ({ request }) => {
+    test('should get cart items', async ({ request, authToken }) => {
         const response = await request.get('/cart', {
-            headers: {  'Authorization': `Bearer ${token}`} 
+            headers: {  'Authorization': `Bearer ${authToken}`} 
         });
         expect(response.status()).toBe(200);
         const responseBody = await response.json();
@@ -89,9 +90,9 @@ test.describe.serial('Cart API', () => {
         console.log('Calculated Total:', responseBody.subtotal + responseBody.gst);
     });
 
-    test('should update product quantity in cart', async ({ request }) => {
+    test('should update product quantity in cart', async ({ request, authToken }) => {
         const response = await request.patch(`/cart/items/${product.id}`, { 
-            headers: {  'Authorization': `Bearer ${token}`},
+            headers: {  'Authorization': `Bearer ${authToken}`},
             data: {
                 quantity: 2 
             }
@@ -109,10 +110,10 @@ test.describe.serial('Cart API', () => {
 
     });
 
-    test('should remove product from cart', async ({ request }) => {
+    test('should remove product from cart', async ({ request, authToken }) => {
 
         const response = await request.delete(`/cart/items/${product.id}`, {
-            headers: {  'Authorization': `Bearer ${token}`} 
+            headers: {  'Authorization': `Bearer ${authToken}`} 
         });
         expect(response.status()).toBe(200);
         const responseBody = await response.json();
@@ -126,9 +127,9 @@ test.describe.serial('Cart API', () => {
 
 test.describe.serial('Cart API - Clear cart', () => {
   
-     test('should add product2 to cart', async ({ request }) => {
+     test('should add product2 to cart', async ({ request, authToken }) => {
           const response = await request.post('/cart/items', {
-            headers: {  'Authorization': `Bearer ${token}`},
+            headers: {  'Authorization': `Bearer ${authToken}`},
             data: {
                 productId: 'p-002', 
                 quantity: 1
@@ -142,9 +143,9 @@ test.describe.serial('Cart API - Clear cart', () => {
         expect(addedItem.quantity).toBe(1);    
     });
 
-   test('should clear cart', async ({ request }) => {
+   test('should clear cart', async ({ request, authToken }) => {
           const response = await request.delete('/cart', {
-          headers: {  'Authorization': `Bearer ${token}`} 
+          headers: {  'Authorization': `Bearer ${authToken}`} 
         });
        expect(response.status()).toBe(200);
        const responseBody = await response.json();
@@ -189,18 +190,18 @@ test('should not allow removing from cart without authentication', async ({ requ
     expect(responseBody.error).toBe('Missing or invalid Authorization header');
 });
 
-test('should not allow removing non-existent item from cart', async ({ request }) => {
+test('should not allow removing non-existent item from cart', async ({ request, authToken }) => {
     const response = await request.delete('/cart/items/p-003',{
-        headers: {  'Authorization': `Bearer ${token}`}
+        headers: {  'Authorization': `Bearer ${authToken}`}
     });
     expect(response.status()).toBe(404);
     const responseBody = await response.json();
     expect(responseBody.error).toBe('Item not in cart');
 });
 
-test('should not allow updating non-existent item in cart', async ({ request }) => {
+test('should not allow updating non-existent item in cart', async ({ request, authToken }) => {
     const response = await request.patch('/cart/items/p-003', {
-        headers: {  'Authorization': `Bearer ${token}`},
+        headers: {  'Authorization': `Bearer ${authToken}`},
         data: { quantity: 2 }
     });
     expect(response.status()).toBe(404);
@@ -208,9 +209,9 @@ test('should not allow updating non-existent item in cart', async ({ request }) 
     expect(responseBody.error).toBe('Item not in cart');
 });
 
-test('should not allow adding non-existent product to cart', async ({ request }) => {
+test('should not allow adding non-existent product to cart', async ({ request, authToken }) => {
     const response = await request.post('/cart/items', {
-        headers: {  'Authorization': `Bearer ${token}`},    
+        headers: {  'Authorization': `Bearer ${authToken}`},    
         data: {
             productId: 'p-999', 
             quantity: 1 
@@ -221,9 +222,9 @@ test('should not allow adding non-existent product to cart', async ({ request })
     expect(responseBody.error).toBe('Product not found');
 });
 
-test('should not allow adding more than stock to cart', async ({ request }) => {
+test('should not allow adding more than stock to cart', async ({ request, authToken }) => {
     const response = await request.post('/cart/items', {
-        headers: {  'Authorization': `Bearer ${token}`},    
+        headers: {  'Authorization': `Bearer ${authToken}`},    
         data: {
             productId: 'p-004', 
             quantity: 20

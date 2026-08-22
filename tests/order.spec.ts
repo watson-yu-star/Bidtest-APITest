@@ -4,9 +4,10 @@ import { orderResponseSchema } from '../schemas/orderResponseSchema';
 import product from '../test-data/product.json';
 import customer from '../test-data/customer.json';
 
-let token: string;
+//let token: string;
 
-
+//It use the token from the fixture authToken instead of creating a new user and logging in for each test. This is more efficient and avoids potential issues with rate limiting or duplicate users.
+/* 
 test.beforeAll(async ({ request },testInfo) => {
 
     const workerIndex = testInfo.parallelIndex;
@@ -30,6 +31,7 @@ test.beforeAll(async ({ request },testInfo) => {
   
 });
 
+*/
 
 test.describe.serial('Order API', () => {
 
