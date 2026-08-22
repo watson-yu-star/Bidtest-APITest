@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 import { z } from 'zod';
 import { orderResponseSchema } from '../schemas/orderResponseSchema';
 import product from '../test-data/product.json';
@@ -36,9 +36,10 @@ test.describe.serial('Order API', () => {
   
     let orderId: string;
 
-    test('should return 400 for empty cart', async ({ request }) => {
+    test('should return 400 for empty cart', async ({ request, authToken }) => {
+        console.log('Running test with fixture authToken:', authToken);
     const response = await request.post('/orders', {
-        headers: {  'Authorization': `Bearer ${token}`},    
+        headers: {  'Authorization': `Bearer ${authToken}`},    
         data: {
             "customer": customer
         }
@@ -47,9 +48,9 @@ test.describe.serial('Order API', () => {
 
     });
 
-    test('should add product to cart', async ({ request }) => {
+    test('should add product to cart', async ({ request, authToken }) => {
             const response = await request.post('/cart/items', {
-                headers: {  'Authorization': `Bearer ${token}`},
+                headers: {  'Authorization': `Bearer ${authToken}`},
                 data: {
                     productId: product.id, 
                     quantity: 1
@@ -64,9 +65,9 @@ test.describe.serial('Order API', () => {
             expect(addedItem.unitPrice).toBe(product.price);
         });
 
-    test('should create an order', async ({ request }) => {
+    test('should create an order', async ({ request, authToken }) => {
         const response = await request.post('/orders', {
-            headers: {  'Authorization': `Bearer ${token}`},
+            headers: {  'Authorization': `Bearer ${authToken}`},
             data: {
                 "customer": customer
             }
@@ -93,9 +94,9 @@ test.describe.serial('Order API', () => {
     });
 
 
-    test('should get order history', async ({ request }) => {
+    test('should get order history', async ({ request, authToken }) => {
         const response = await request.get('/orders', {
-            headers: {  'Authorization': `Bearer ${token}`}
+            headers: {  'Authorization': `Bearer ${authToken}`}
         });
         expect(response.status()).toBe(200);
         const responseBody = await response.json();
@@ -106,9 +107,9 @@ test.describe.serial('Order API', () => {
 
     });
 
-    test('should get order details by id', async ({ request }) => {
+    test('should get order details by id', async ({ request, authToken }) => {
         const response = await request.get(`/orders/${orderId}`, {
-            headers: {  'Authorization': `Bearer ${token}`}
+            headers: {  'Authorization': `Bearer ${authToken}`}
         });
         expect(response.status()).toBe(200);
         const responseBody = await response.json();
@@ -130,16 +131,16 @@ test.describe.serial('Order API', () => {
     });
 });
 
-test('should return 404 for non-existing order', async ({ request }) => {
+test('should return 404 for non-existing order', async ({ request, authToken }) => {
     const response = await request.get('/orders/non-existing-order-id', {
-        headers: {  'Authorization': `Bearer ${token}`}     
+        headers: {  'Authorization': `Bearer ${authToken}`}     
     });
     expect(response.status()).toBe(404);
     const responseBody = await response.json();
     expect(responseBody.error).toBe('Order not found');
 });
 
-test('should return 401 for unauthorized access to order id', async ({ request }) => {
+test('should return 401 for unauthorized access to order id', async ({ request}) => {
     const response = await request.get('/orders/17293433-1234-5678-9101-123456789012');
     expect(response.status()).toBe(401);
     const responseBody = await response.json();
